@@ -35,7 +35,7 @@ public class Token implements Serializable{
         listaProcesos = new Vector();
     }
 
-    public void encolarProceso(id){
+    public void encolarProceso(int id){
         colaRequest.add(id);
     }
 }

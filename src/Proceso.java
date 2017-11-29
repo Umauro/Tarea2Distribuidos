@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.rmi.*;
+import java.net.UnknownHostException;
  /*
   * Procesos que formarán parte del algoritmo Suzuki-Kasami.
   *
@@ -35,12 +36,13 @@ public class Proceso{
                 addressM = InetAddress.getByName("230.0.0.1");
                 puertoM = 4444;
                 socketM = new MulticastSocket(puertoM);
+                socketM.joinGroup(addressM);
             }
             catch(UnknownHostException e){
                 System.err.println("Error al asignar ip Multicast");
                 e.printStackTrace();
                 System.exit(1);
-            }
+;            }
             catch(IOException e){
                 System.err.println("Error al crear Socket Multicast");
                 e.printStackTrace();
@@ -49,7 +51,23 @@ public class Proceso{
             buf = new byte[256];
         }
         public void run(){
-            System.out.println("hola");
+            while(true){
+                try{
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    socketM.receive(packet);
+                    String response = new String(packet.getData(),
+                    packet.getOffset(), packet.getLength());
+                    System.out.println(response);
+                }
+                catch (SocketTimeoutException e){
+                    System.err.println("Excepcion: ");
+                    e.printStackTrace();
+                }
+                catch (IOException e){
+                    System.err.println("Excepcion: ");
+                    e.printStackTrace();
+                }
+            }
         }
     }
     public static void main(String[] args){
@@ -69,9 +87,15 @@ public class Proceso{
             System.setSecurityManager(new SecurityManager());
         }
         try{
-            SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
-            +":"+args[1]+"/SK");
+            //SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
+            //+":"+args[1]+"/SK");
+            SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
             inter.waitToken();
+
+            // Crear Thread para escuchar por Multicast
+            Thread multi = new Thread(new multicastListener());
+            multi.start();
+            inter.request(1,1);
         }
         catch(RemoteException e){
             System.err.println("Error: " + e.toString());
@@ -80,5 +104,8 @@ public class Proceso{
             System.err.println("Excepción: ");
             e.printStackTrace();
         }
+
+
+
     }
 }

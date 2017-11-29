@@ -57,6 +57,7 @@
              DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
              try{
                  socketM.send(packet);
+                 System.out.println("Mandé el paquetito c:");
              }
              catch (IOException e){
                  e.printStackTrace();
@@ -69,7 +70,7 @@
          }
 
 
-         System.out.println("Request");
+
      }
 
      public void waitToken() throws RemoteException{
