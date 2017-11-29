@@ -10,10 +10,10 @@
  * INSERTAR LO DEL COPYWEA ACÁ
  */
 
- import java.io.*;
- import java.net.*;
- import java.util.*;
- import java.rmi.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.rmi.*;
  /*
   * Procesos que formarán parte del algoritmo Suzuki-Kasami.
   *
@@ -23,25 +23,62 @@
   * Felipe Vega
   */
 
-  public class Proceso{
-      public Boolean haveToken;
-      public int id;
-      public int delayTime;
+public class Proceso{
+    public static class multicastListener implements Runnable{
+        public MulticastSocket socketM;
+        public InetAddress addressM;
+        public int puertoM;
+        public byte[] buf;
 
-      public static void main(String[] args){
-          if(System.getSecurityManager() == null){
-              System.setSecurityManager(new SecurityManager());
-          }
-          try{
-              SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]+":"+args[1]+"/SK");
-              inter.waitToken();
-          }
-          catch(RemoteException e){
-              System.err.println("Error: " + e.toString());
-          }
-          catch (Exception e){
-              System.err.println("Excepción: ");
-              e.printStackTrace();
-          }
-      }
-  }
+        public multicastListener(){
+            try{
+                addressM = InetAddress.getByName("230.0.0.1");
+                puertoM = 4444;
+                socketM = new MulticastSocket(puertoM);
+            }
+            catch(UnknownHostException e){
+                System.err.println("Error al asignar ip Multicast");
+                e.printStackTrace();
+                System.exit(1);
+            }
+            catch(IOException e){
+                System.err.println("Error al crear Socket Multicast");
+                e.printStackTrace();
+                System.exit(1);
+            }
+            buf = new byte[256];
+        }
+        public void run(){
+            System.out.println("hola");
+        }
+    }
+    public static void main(String[] args){
+        int id = Integer.parseInt(args[0]);
+        int cantidadProcesos = Integer.parseInt(args[1]);
+        int delayTime = Integer.parseInt(args[2]);
+        Boolean bearer = Boolean.valueOf(args[3]);
+        Boolean haveToken = false;
+        Token token = null;
+
+        if(bearer){
+            token = new Token();
+            haveToken = true;
+        }
+
+        if(System.getSecurityManager() == null){
+            System.setSecurityManager(new SecurityManager());
+        }
+        try{
+            SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
+            +":"+args[1]+"/SK");
+            inter.waitToken();
+        }
+        catch(RemoteException e){
+            System.err.println("Error: " + e.toString());
+        }
+        catch (Exception e){
+            System.err.println("Excepción: ");
+            e.printStackTrace();
+        }
+    }
+}

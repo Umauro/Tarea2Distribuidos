@@ -14,6 +14,8 @@
  import java.rmi.server.*;
  import java.io.*;
  import java.util.*;
+ import java.net.*;
+ import java.net.UnknownHostException;
 
  /*
   * Servidor que contendrá los métodos a utilizar con Java RMI
@@ -25,12 +27,48 @@
   */
 
  public class servidorRMI extends UnicastRemoteObject implements SemaforoInter {
+     public MulticastSocket socketM;
+     public InetAddress addressM;
+     public int puertoM;
+     public byte[] buf;
 
      servidorRMI() throws RemoteException{
-         System.out.println("hola");
+         try{
+             addressM = InetAddress.getByName("230.0.0.1");
+             puertoM = 4444;
+             socketM = new MulticastSocket(puertoM);
+         }
+         catch(UnknownHostException e){
+             System.err.println("Error al asignar ip Multicast");
+             e.printStackTrace();
+             System.exit(1);
+         }
+         catch(IOException e){
+             System.err.println("Error al crear Socket Multicast");
+             e.printStackTrace();
+             System.exit(1);
+         }
+         buf = new byte[256];
      }
 
      public void request(int id, int seq) throws RemoteException{
+         try{
+             buf = (String.valueOf(id) + String.valueOf(seq)).getBytes();
+             DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
+             try{
+                 socketM.send(packet);
+             }
+             catch (IOException e){
+                 e.printStackTrace();
+             }
+         }
+         catch(Exception e){
+             System.err.println("ME CAÍ");
+             e.printStackTrace();
+             System.exit(1);
+         }
+
+
          System.out.println("Request");
      }
 
