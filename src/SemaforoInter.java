@@ -22,9 +22,9 @@
   * Felipe Vega
   */
 
-public interface SemaforoInterface extends Remote{
+public interface SemaforoInter extends Remote {
     void request(int id, int seq) throws RemoteException;
     void waitToken() throws RemoteException;
-    Token takeToken(Token token) throws RemoteException;
+    void takeToken(Token token) throws RemoteException;
     void kill() throws RemoteException;
 }

@@ -13,7 +13,7 @@
  import java.io.*;
  import java.net.*;
  import java.util.*;
-
+ import java.rmi.*;
  /*
   * Procesos que formarán parte del algoritmo Suzuki-Kasami.
   *
@@ -29,6 +29,19 @@
       public int delayTime;
 
       public static void main(String[] args){
-
+          if(System.getSecurityManager() == null){
+              System.setSecurityManager(new SecurityManager());
+          }
+          try{
+              SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]+":"+args[1]+"/SK");
+              inter.waitToken();
+          }
+          catch(RemoteException e){
+              System.err.println("Error: " + e.toString());
+          }
+          catch (Exception e){
+              System.err.println("Excepción: ");
+              e.printStackTrace();
+          }
       }
   }
