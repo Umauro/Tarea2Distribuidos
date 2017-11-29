@@ -24,5 +24,11 @@
   */
 
   public class Proceso{
-       
+      public Boolean haveToken;
+      public int id;
+      public int delayTime;
+
+      public static void main(String[] args){
+
+      }
   }

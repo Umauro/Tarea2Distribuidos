@@ -26,10 +26,12 @@ import java.util.*;
 
 public class Token implements Serializable{
     /* Cola de procesos en espera del Token */
-    Queue<Integer> colaProcesos;
+    Vector<Integer> listaProcesos;
+    Queue<Integer> colaRequest;
 
     /* Constructor de la clase Token */
     public Token(){
-        colaProcesos = new LinkedList();
+        colaRequest = new LinkedList();
+        listaProcesos = new Vector();
     }
 }
