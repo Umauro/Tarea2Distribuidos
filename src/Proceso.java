@@ -78,6 +78,7 @@ public class Proceso{
         Boolean haveToken = false;
         Token token = null;
 
+        /* Crear token si es el proceso inicial */
         if(bearer){
             token = new Token();
             haveToken = true;
@@ -90,12 +91,15 @@ public class Proceso{
             //SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
             //+":"+args[1]+"/SK");
             SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
-            inter.waitToken();
+
 
             // Crear Thread para escuchar por Multicast
             Thread multi = new Thread(new multicastListener());
             multi.start();
-            inter.request(1,1);
+
+            /*Pedir el token una vez pasado el Delay Time*/
+            Thread.sleep(delayTime);
+            inter.request(id,1);
         }
         catch(RemoteException e){
             System.err.println("Error: " + e.toString());
