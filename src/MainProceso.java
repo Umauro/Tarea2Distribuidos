@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
   * Felipe Vega
   */
 
-public class mainProceso{
+public class MainProceso{
 
     public static void main(String[] args){
         Proceso process = new Proceso(Integer.parseInt(args[0]),

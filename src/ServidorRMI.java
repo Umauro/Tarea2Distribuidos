@@ -26,13 +26,13 @@
   * Felipe Vega
   */
 
- public class servidorRMI extends UnicastRemoteObject implements SemaforoInter {
+ public class ServidorRMI extends UnicastRemoteObject implements SemaforoInter {
      public MulticastSocket socketM;
      public InetAddress addressM;
      public int puertoM;
      public byte[] buf;
 
-     servidorRMI() throws RemoteException{
+     ServidorRMI() throws RemoteException{
          try{
              addressM = InetAddress.getByName("230.0.0.1");
              puertoM = 4444;
@@ -92,7 +92,7 @@
         }
 
         try{
-            SemaforoInter inter = new servidorRMI();
+            SemaforoInter inter = new ServidorRMI();
             Naming.rebind("rmi://localhost:" + args[0] + "/SK", inter);
         }
         catch (RemoteException e){
