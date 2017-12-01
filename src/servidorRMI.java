@@ -53,7 +53,7 @@
 
      public void request(int id, int seq) throws RemoteException{
          try{
-             buf = (String.valueOf(id) + String.valueOf(seq)).getBytes();
+             buf = (String.valueOf(id) + ";"+ String.valueOf(seq)).getBytes();
              DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
              try{
                  socketM.send(packet);

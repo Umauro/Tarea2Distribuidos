@@ -25,91 +25,112 @@ import java.net.UnknownHostException;
   */
 
 public class Proceso{
-    public static class multicastListener implements Runnable{
-        public MulticastSocket socketM;
-        public InetAddress addressM;
-        public int puertoM;
-        public byte[] buf;
+    /** Atributos del proceso principal **/
+    public int id;
+    public int cantidadProcesos;
+    public int delayTime;
+    public Boolean bearer;
+    public Token token;
+    public Boolean haveToken;
 
-        public multicastListener(){
-            try{
-                addressM = InetAddress.getByName("230.0.0.1");
-                puertoM = 4444;
-                socketM = new MulticastSocket(puertoM);
-                socketM.joinGroup(addressM);
+    private MulticastSocket socketM;
+    private InetAddress addressM;
+    private int puertoM;
+    private byte[] buf;
+
+
+    public Proceso(int id, int cantidadProcesos, int delayTime, Boolean bearer){
+            this.id = id;
+            this.cantidadProcesos = cantidadProcesos;
+            this.delayTime = delayTime;
+            this.bearer = bearer;
+            if(this.bearer){
+                this.token = new Token();
+                this.haveToken = true;
             }
-            catch(UnknownHostException e){
-                System.err.println("Error al asignar ip Multicast");
-                e.printStackTrace();
-                System.exit(1);
-;            }
-            catch(IOException e){
-                System.err.println("Error al crear Socket Multicast");
-                e.printStackTrace();
-                System.exit(1);
+            else{
+                this.token = null;
+                this.haveToken = false;
             }
-            buf = new byte[256];
-        }
-        public void run(){
-            while(true){
-                try{
-                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                    socketM.receive(packet);
-                    String response = new String(packet.getData(),
-                    packet.getOffset(), packet.getLength());
-                    System.out.println(response);
-                }
-                catch (SocketTimeoutException e){
-                    System.err.println("Excepcion: ");
-                    e.printStackTrace();
-                }
-                catch (IOException e){
-                    System.err.println("Excepcion: ");
-                    e.printStackTrace();
-                }
-            }
-        }
     }
-    public static void main(String[] args){
-        int id = Integer.parseInt(args[0]);
-        int cantidadProcesos = Integer.parseInt(args[1]);
-        int delayTime = Integer.parseInt(args[2]);
-        Boolean bearer = Boolean.valueOf(args[3]);
-        Boolean haveToken = false;
-        Token token = null;
 
-        /* Crear token si es el proceso inicial */
-        if(bearer){
-            token = new Token();
-            haveToken = true;
-        }
+    public void multicastListener(){
+        Thread t = new Thread(new Runnable(){
+            public void run(){
+                buf = new byte[256];
+                /** Inicialización del Socket Multicast **/
+                try{
+                    addressM = InetAddress.getByName("230.0.0.1");
+                    puertoM = 4444;
+                    socketM = new MulticastSocket(puertoM);
+                    socketM.joinGroup(addressM);
+                }
+                catch(UnknownHostException e){
+                    System.err.println("Error al asignar ip Multicast");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                catch(IOException e){
+                    System.err.println("Error al crear Socket Multicast");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
 
-        if(System.getSecurityManager() == null){
-            System.setSecurityManager(new SecurityManager());
-        }
-        try{
-            //SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
-            //+":"+args[1]+"/SK");
-            SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
+                /** Escuchar Mensajes **/
+                while(true){
+                    try{
+                        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                        socketM.receive(packet);
+                        String response = new String(packet.getData(),
+                        packet.getOffset(), packet.getLength());
+                        String[] parser = response.split(";");
+                        if(haveToken){
+                            System.out.println("Me llegó el request");
+                            /** Acá hay que manejar que se hace en el request **/
+                        }
+                        else{
+                            System.out.println("No hay mano con el token");
+                        }
+                    }
+                    catch (SocketTimeoutException e){
+                        System.err.println("Excepcion: ");
+                        e.printStackTrace();
+                    }
+                    catch (IOException e){
+                        System.err.println("Excepcion: ");
+                        e.printStackTrace();
+                    }
+                }
 
+            }
+        });
+        t.start();
+    }
 
-            // Crear Thread para escuchar por Multicast
-            Thread multi = new Thread(new multicastListener());
-            multi.start();
+    public void funcionalidades(){
+        Thread t = new Thread(new Runnable(){
+            public void run(){
+                if(System.getSecurityManager() == null){
+                    System.setSecurityManager(new SecurityManager());
+                }
+                try{
+                    //SemaforoInter inter = (SemaforoInter) Naming.lookup("//"+ args[0]
+                    //+":"+args[1]+"/SK");
+                    SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
 
-            /*Pedir el token una vez pasado el Delay Time*/
-            Thread.sleep(delayTime);
-            inter.request(id,1);
-        }
-        catch(RemoteException e){
-            System.err.println("Error: " + e.toString());
-        }
-        catch (Exception e){
-            System.err.println("Excepción: ");
-            e.printStackTrace();
-        }
-
-
-
+                    /*Pedir el token una vez pasado el Delay Time*/
+                    Thread.sleep(delayTime);
+                    inter.request(id,1);
+                }
+                catch(RemoteException e){
+                    System.err.println("Error: " + e.toString());
+                }
+                catch (Exception e){
+                    System.err.println("Excepción: ");
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.start();
     }
 }

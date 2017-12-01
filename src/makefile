@@ -14,6 +14,7 @@ CLASSES = \
 	SemaforoInter.java \
 	Token.java \
 	Proceso.java \
+	mainProceso.java \
 	servidorRMI.java \
 
 MAIN = servidorRMI
