@@ -64,57 +64,78 @@
      }
 
      public void request(int id, int seq) throws RemoteException{
-         try{
-             buf = (String.valueOf(id) + ";"+ String.valueOf(seq)).getBytes();
-             DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
-             try{
-                 socketM.send(packet);
-                 System.out.println("Mandé el paquetito c:");
+         Thread t = new Thread(new Runnable(){
+             public void run(){
+                 try{
+                     buf = (String.valueOf(id) + ";"+ String.valueOf(seq)).getBytes();
+                     DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
+                     try{
+                         socketM.send(packet);
+                         System.out.println("Mandé el paquetito c:");
+                     }
+                     catch (IOException e){
+                         e.printStackTrace();
+                     }
+                 }
+                 catch(Exception e){
+                     System.err.println("ME CAÍ");
+                     e.printStackTrace();
+                     System.exit(1);
+                 }
              }
-             catch (IOException e){
-                 e.printStackTrace();
-             }
-         }
-         catch(Exception e){
-             System.err.println("ME CAÍ");
-             e.printStackTrace();
-             System.exit(1);
-         }
+         });
+         t.start();
+
      }
 
      public Token waitToken(int id) throws RemoteException{
-         Token token = null;
-         while(true){
-             try{
-                 DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
-                 System.out.println("Esperando el Token");
-                 socketM2.receive(packet2);
-                 try{
-                     ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
-                     ObjectInputStream is = new ObjectInputStream(serializado);
-                     token = (Token)is.readObject();
-                     is.close();
-                     if(id == token.getProxId()){
-                         return token;
+         final Token token = new Token();
+         Thread t = new Thread(new Runnable(){
+             public void run(){
+                 while(true){
+                     try{
+                         DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
+                         System.out.println("Esperando el Token");
+                         socketM2.receive(packet2);
+                         try{
+                             ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
+                             ObjectInputStream is = new ObjectInputStream(serializado);
+                             Token tokenAux = (Token)is.readObject();
+                             is.close();
+                             if(id == tokenAux.getProxId()){
+                                 token.listaProcesos = tokenAux.listaProcesos;
+                                 token.colaRequest = tokenAux.colaRequest;
+                                 token.proxId = tokenAux.proxId;
+                                 break;
+                             }
+
+                         }
+                         catch (IOException e){
+                             e.printStackTrace();
+                         }
+                         catch (ClassNotFoundException e){
+                             e.printStackTrace();
+                         }
                      }
+                     catch (SocketTimeoutException e){
 
-                 }
-                 catch (IOException e){
-                     e.printStackTrace();
-                 }
-                 catch (ClassNotFoundException e){
-                     e.printStackTrace();
+                     }
+                     catch(Exception e){
+                         System.err.println("ME CAÍ en WaitToken");
+                         e.printStackTrace();
+                         System.exit(1);
+                     }
                  }
              }
-             catch (SocketTimeoutException e){
-
-             }
-             catch(Exception e){
-                 System.err.println("ME CAÍ en WaitToken");
-                 e.printStackTrace();
-                 System.exit(1);
-             }
+         });
+         t.start();
+         try{
+            t.join();
          }
+         catch (InterruptedException e){
+             e.printStackTrace();
+         }
+         return token;
      }
 
      public void takeToken(Token token) throws RemoteException{

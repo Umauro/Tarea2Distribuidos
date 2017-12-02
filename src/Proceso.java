@@ -120,11 +120,13 @@ public class Proceso{
                     SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
 
                     /*Pedir el token una vez pasado el Delay Time*/
-                    Thread.sleep(delayTime);
+
                     if(!haveToken){
+                        Thread.sleep(delayTime);
                         inter.request(id,1);
                     }
-                    while(haveToken){
+
+                    while(!haveToken){
                         inter.waitToken(id);
                     }
 
