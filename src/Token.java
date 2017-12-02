@@ -28,6 +28,7 @@ public class Token implements Serializable{
     /* Cola de procesos en espera del Token */
     Vector<Integer> listaProcesos;
     Queue<Integer> colaRequest;
+    int proxId;
 
     /* Constructor de la clase Token */
     public Token(){
@@ -37,5 +38,13 @@ public class Token implements Serializable{
 
     public void encolarProceso(int id){
         colaRequest.add(id);
+    }
+
+    public void setProxId(int id){
+        proxId = id;
+    }
+
+    public int getProxId(){
+        return proxId;
     }
 }

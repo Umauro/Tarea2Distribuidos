@@ -27,16 +27,27 @@
   */
 
  public class ServidorRMI extends UnicastRemoteObject implements SemaforoInter {
+     //** Socket Multicast para Request **//
      public MulticastSocket socketM;
+     public MulticastSocket socketM2;
      public InetAddress addressM;
+     public InetAddress addressM2;
      public int puertoM;
+     public int puertoM2;
      public byte[] buf;
+     public byte[] buf2;
 
      ServidorRMI() throws RemoteException{
          try{
              addressM = InetAddress.getByName("230.0.0.1");
+             addressM2 = InetAddress.getByName("231.0.0.1");
              puertoM = 4444;
+             puertoM2 = 4445;
              socketM = new MulticastSocket(puertoM);
+             socketM2 = new MulticastSocket(puertoM2);
+             socketM2.setSoTimeout(500);
+             socketM2.joinGroup(addressM2);
+
          }
          catch(UnknownHostException e){
              System.err.println("Error al asignar ip Multicast");
@@ -49,6 +60,7 @@
              System.exit(1);
          }
          buf = new byte[256];
+         buf2 = new byte[256];
      }
 
      public void request(int id, int seq) throws RemoteException{
@@ -68,13 +80,41 @@
              e.printStackTrace();
              System.exit(1);
          }
-
-
-
      }
 
-     public void waitToken() throws RemoteException{
-         System.out.println("waitea");
+     public Token waitToken(int id) throws RemoteException{
+         Token token = null;
+         while(true){
+             try{
+                 DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
+                 System.out.println("Esperando el Token");
+                 socketM2.receive(packet2);
+                 try{
+                     ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
+                     ObjectInputStream is = new ObjectInputStream(serializado);
+                     token = (Token)is.readObject();
+                     is.close();
+                     if(id == token.getProxId()){
+                         return token;
+                     }
+
+                 }
+                 catch (IOException e){
+                     e.printStackTrace();
+                 }
+                 catch (ClassNotFoundException e){
+                     e.printStackTrace();
+                 }
+             }
+             catch (SocketTimeoutException e){
+
+             }
+             catch(Exception e){
+                 System.err.println("ME CAÍ en WaitToken");
+                 e.printStackTrace();
+                 System.exit(1);
+             }
+         }
      }
 
      public void takeToken(Token token) throws RemoteException{

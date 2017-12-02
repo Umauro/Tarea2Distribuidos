@@ -17,7 +17,7 @@ CLASSES = \
 	MainProceso.java \
 	ServidorRMI.java \
 
-MAIN = servidorRMI
+MAIN = ServidorRMI
 
 #default: classes
 #	$(JVM) $(MAIN)

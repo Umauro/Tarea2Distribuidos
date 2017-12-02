@@ -86,6 +86,7 @@ public class Proceso{
                         String[] parser = response.split(";");
                         if(haveToken){
                             System.out.println("Me llegó el request");
+                            token.setProxId(Integer.parseInt(parser[0]));
                             /** Acá hay que manejar que se hace en el request **/
                         }
                         else{
@@ -120,7 +121,13 @@ public class Proceso{
 
                     /*Pedir el token una vez pasado el Delay Time*/
                     Thread.sleep(delayTime);
-                    inter.request(id,1);
+                    if(!haveToken){
+                        inter.request(id,1);
+                    }
+                    while(haveToken){
+                        inter.waitToken(id);
+                    }
+
                 }
                 catch(RemoteException e){
                     System.err.println("Error: " + e.toString());
