@@ -32,7 +32,7 @@ public class Proceso{
     public Boolean bearer;
     public Token token;
     public Boolean haveToken;
-    public int estado;
+    public String estado;
 
     private MulticastSocket socketM;
     private InetAddress addressM;
@@ -45,14 +45,16 @@ public class Proceso{
             this.cantidadProcesos = cantidadProcesos;
             this.delayTime = delayTime;
             this.bearer = bearer;
-            this.estado = 0;
+            this.estado = "verde";
             if(this.bearer){
                 this.token = new Token(cantidadProcesos);
                 this.haveToken = true;
+
             }
             else{
                 this.token = null;
                 this.haveToken = false;
+
             }
     }
 
@@ -125,6 +127,7 @@ public class Proceso{
 
                         inter.request(id,1);
                         System.out.println("Voy a pedir el token con id" + id);
+                        estado = "amarillo";
                         token = inter.waitToken(id);
                         System.out.println("Me llegó el token");
                         haveToken = true;
@@ -133,9 +136,12 @@ public class Proceso{
                         token.listaProcesos.set(id-1,1);
                         //Ruta Crítica va acá
                         System.out.println("Seccion Critica");
+                        estado = "rojo";
                         Thread.sleep(2000);
-
+                        //Termino Sección crítica
+                        estado = "verde";
                         if(!token.colaRequest.isEmpty()){
+
                             System.out.println("Voy a enviar el Token");
                             inter.takeToken(token);
                             haveToken = false;
