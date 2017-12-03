@@ -10,9 +10,12 @@
  * INSERTAR LO DEL COPYWEA ACÁ
  */
 
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.rmi.*;
+import java.net.UnknownHostException;
 
 
 
@@ -39,12 +42,28 @@ public class Proceso{
         this.bearer = bearer;
         this.estado = 0;
 
-        inter = (InterfaceRMI) Naming.lookup("//localhost:12345/SK");
+        if(System.getSecurityManager() == null){
+            System.setSecurityManager(new SecurityManager());
+        }
+        try{
+            inter = (InterfaceRMI) Naming.lookup("//localhost:12345/SK");
+        }
+        catch (NotBoundException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        catch (MalformedURLException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+        catch (RemoteException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
         if(this.bearer){
             this.haveToken = true;
         }
         else{
-            this.token = null;
             this.haveToken = false;
         }
   }

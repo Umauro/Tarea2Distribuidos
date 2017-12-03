@@ -32,13 +32,13 @@ public class Token extends UnicastRemoteObject implements InterfaceRMI{
     Vector<Integer> listaProcesos;
     int procesoActual;
     /* Constructor de la clase Token */
-    public Token(){
+    public Token() throws RemoteException{
         colaProcesos = new LinkedList();
-        listaProcesos = new LinkedList();
+        listaProcesos = new Vector();
         procesoActual = -1;
     }
 
-    public inicializarToken(int n, int id) throws RemoteException{
+    public void inicializarToken(int n, int id) throws RemoteException{
         procesoActual = id;
         for(int i = 0; i<n; i++){
             listaProcesos.add(0);
