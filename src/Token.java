@@ -31,9 +31,12 @@ public class Token implements Serializable{
     int proxId;
 
     /* Constructor de la clase Token */
-    public Token(){
+    public Token(int n){
         colaRequest = new LinkedList();
-        listaProcesos = new Vector();
+        listaProcesos = new Vector(n);
+        for(int i=0; i<n; i++){
+            listaProcesos.add(0);
+        }
     }
 
     public void encolarProceso(int id){

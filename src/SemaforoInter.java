@@ -24,7 +24,7 @@
 
 public interface SemaforoInter extends Remote {
     void request(int id, int seq) throws RemoteException;
-    Token waitToken(int id) throws RemoteException;
-    void takeToken(Token token) throws RemoteException;
+    Token waitToken(int id, int n) throws RemoteException;
+    int takeToken(Token token) throws RemoteException;
     void kill() throws RemoteException;
 }

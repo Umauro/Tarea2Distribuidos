@@ -45,7 +45,6 @@
              puertoM2 = 4445;
              socketM = new MulticastSocket(puertoM);
              socketM2 = new MulticastSocket(puertoM2);
-             socketM2.setSoTimeout(500);
              socketM2.joinGroup(addressM2);
 
          }
@@ -88,8 +87,8 @@
 
      }
 
-     public Token waitToken(int id) throws RemoteException{
-         final Token token = new Token();
+     public Token waitToken(int id, int n) throws RemoteException{
+         final Token token = new Token(n);
          Thread t = new Thread(new Runnable(){
              public void run(){
                  while(true){
@@ -98,6 +97,7 @@
                          System.out.println("Esperando el Token");
                          socketM2.receive(packet2);
                          try{
+                             System.out.println("Llegó el token");
                              ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
                              ObjectInputStream is = new ObjectInputStream(serializado);
                              Token tokenAux = (Token)is.readObject();
@@ -138,8 +138,20 @@
          return token;
      }
 
-     public void takeToken(Token token) throws RemoteException{
-         System.out.println("tomar token");
+     public int takeToken(Token token) throws RemoteException{
+         try{
+             ByteArrayOutputStream serial = new ByteArrayOutputStream();
+             ObjectOutputStream os = new ObjectOutputStream(serial);
+             os.writeObject(token);
+             os.close();
+             byte[] buf = serial.toByteArray();
+             DatagramPacket packet = new DatagramPacket(buf, buf.length, addressM, puertoM2);
+             try{
+                 System.out.println("Vamos a Mandar la weá");
+                 socketM2.send(packet);
+             } catch (IOException e){e.printStackTrace();}
+         } catch (IOException e){e.printStackTrace();}
+         return 0;
      }
 
      public void kill() throws RemoteException{

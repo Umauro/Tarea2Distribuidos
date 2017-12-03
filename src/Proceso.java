@@ -32,6 +32,7 @@ public class Proceso{
     public Boolean bearer;
     public Token token;
     public Boolean haveToken;
+    public int estado;
 
     private MulticastSocket socketM;
     private InetAddress addressM;
@@ -44,8 +45,9 @@ public class Proceso{
             this.cantidadProcesos = cantidadProcesos;
             this.delayTime = delayTime;
             this.bearer = bearer;
+            this.estado = 0;
             if(this.bearer){
-                this.token = new Token();
+                this.token = new Token(cantidadProcesos);
                 this.haveToken = true;
             }
             else{
@@ -86,7 +88,7 @@ public class Proceso{
                         String[] parser = response.split(";");
                         if(haveToken){
                             System.out.println("Me llegó el request");
-                            token.setProxId(Integer.parseInt(parser[0]));
+                            token.encolarProceso(Integer.parseInt(parser[0]));
                             /** Acá hay que manejar que se hace en el request **/
                         }
                         else{
@@ -120,16 +122,36 @@ public class Proceso{
                     SemaforoInter inter = (SemaforoInter) Naming.lookup("//localhost:12345/SK");
 
                     /*Pedir el token una vez pasado el Delay Time*/
+                    Thread.sleep(delayTime);
+                    if(haveToken == false){
 
-                    if(!haveToken){
-                        Thread.sleep(delayTime);
                         inter.request(id,1);
+                        inter.waitToken(id, cantidadProcesos);
+                        haveToken = true;
                     }
 
-                    while(!haveToken){
-                        inter.waitToken(id);
+                    token.listaProcesos.set(id-1,1);
+                    //Ruta Crítica va acá
+                    System.out.println("Seccion Critica");
+                    Thread.sleep(2000);
+                    if(token.colaRequest.size()>0){
+                        token.setProxId(token.colaRequest.element());
                     }
 
+                    Boolean tamos = true;
+                    if(inter.takeToken(token) == 1){
+                        for(int i=0; i< token.listaProcesos.size(); i++){
+                            if(token.listaProcesos.get(i) == 0){
+                                tamos = false;
+                            }
+                        }
+                        if(tamos){
+                            inter.kill();
+                        }
+                    }
+                    haveToken = false;
+                    token = null;
+                    System.exit(0);
                 }
                 catch(RemoteException e){
                     System.err.println("Error: " + e.toString());
