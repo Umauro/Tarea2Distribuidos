@@ -135,13 +135,33 @@ public class Proceso{
                         System.out.println("Seccion Critica");
                         Thread.sleep(2000);
 
-                        System.out.println("Tamaño de la cola: " +token.colaRequest.size() + " Del proceso " + id);
                         if(!token.colaRequest.isEmpty()){
                             System.out.println("Voy a enviar el Token");
                             inter.takeToken(token);
                             haveToken = false;
                             token = null;
                             System.exit(0);
+                        }
+                        else{
+                            Boolean leDamos = true;
+                            for(int i=0; i < token.listaProcesos.size(); i++){
+                                if(token.listaProcesos.get(i) == 0){
+                                    leDamos = false;
+                                }
+                            }
+                            if(!leDamos){
+                                while(token.colaRequest.isEmpty()){
+                                    Thread.sleep(1);
+                                }
+                                inter.takeToken(token);
+                                token = null;
+                                System.exit(0);
+                            }
+                            else{
+                                System.out.println("Todos terminaron, así que chaolovimoh");
+                                inter.kill();
+                                System.exit(0);
+                            }
                         }
                     }
 

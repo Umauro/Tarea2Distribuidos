@@ -138,7 +138,16 @@
 
      public void kill() throws RemoteException{
          System.out.println("DIEDIEDIE");
-         System.exit(0);
+         try{
+             Naming.unbind("rmi://localhost:12345/SK");
+             UnicastRemoteObject.unexportObject(this, true);
+         }
+         catch(NotBoundException e){
+             e.printStackTrace();
+         }
+         catch(MalformedURLException e){
+             e.printStackTrace();
+         }
      }
 
      public static void main(String[] args){
