@@ -42,6 +42,7 @@ public class Proceso{
         this.bearer = bearer;
         this.estado = 0;
 
+        // Ir a buscar la interfaz RMI
         if(System.getSecurityManager() == null){
             System.setSecurityManager(new SecurityManager());
         }
@@ -60,6 +61,7 @@ public class Proceso{
             e.printStackTrace();
             System.exit(1);
         }
+
         if(this.bearer){
             this.haveToken = true;
         }

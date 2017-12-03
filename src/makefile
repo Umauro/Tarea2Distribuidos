@@ -13,8 +13,9 @@ DIRECCION = localhost
 CLASSES = \
 	InterfaceRMI.java \
 	Token.java \
-	Proceso.java \
 	MainProceso.java \
+	Proceso.java \
+	
 MAIN = Token
 
 #default: classes
@@ -23,7 +24,7 @@ MAIN = Token
 classes: $(CLASSES:.java=.class)
 
 run: classes
-ifeq ($(MAIN),Proceso)
+ifeq ($(MAIN),MainProceso)
 	$(JVM) $(POLITICA)=$(ARCHIVO) $(MAIN) $(DIRECCION) $(PUERTO)
 else
 	$(JVM) $(POLITICA)=$(ARCHIVO) $(MAIN) $(PUERTO)
