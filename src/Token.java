@@ -10,10 +10,12 @@
  * INSERTAR LO DEL COPYWEA ACÁ
  */
 
+import java.rmi.*;
+import java.rmi.server.*;
 import java.io.*;
-import java.net.*;
 import java.util.*;
-
+import java.net.*;
+import java.net.UnknownHostException;
 
 /*
  * Token utilizado por el algoritmo Suzuki-Kasami.
@@ -24,12 +26,39 @@ import java.util.*;
  * Felipe Vega
  */
 
-public class Token implements Serializable{
+public class Token extends UnicastRemoteObject implements InterfaceRMI{
     /* Cola de procesos en espera del Token */
     Queue<Integer> colaProcesos;
-
+    Vector<Integer> listaProcesos;
+    int procesoActual;
     /* Constructor de la clase Token */
     public Token(){
         colaProcesos = new LinkedList();
+        listaProcesos = new LinkedList();
+        procesoActual = -1;
     }
+
+    public inicializarToken(int n, int id) throws RemoteException{
+        procesoActual = id;
+        for(int i = 0; i<n; i++){
+            listaProcesos.add(0);
+        }
+    }
+
+    public void request(int id, int seq) throws RemoteException{
+        System.out.println("LLamando a la función Request");
+    }
+
+    public void waitToken() throws RemoteException{
+        System.out.println("Llamando a la función waitToken");
+    }
+
+    public void takeToken(Token token) throws RemoteException{
+        System.out.println("Llamando a la funcón takeToken");
+    }
+
+    public void kill() throws RemoteException{
+        System.exit(0);
+    }
+
 }

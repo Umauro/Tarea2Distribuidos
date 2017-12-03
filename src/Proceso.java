@@ -10,19 +10,42 @@
  * INSERTAR LO DEL COPYWEA ACÁ
  */
 
- import java.io.*;
- import java.net.*;
- import java.util.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
- /*
-  * Procesos que formarán parte del algoritmo Suzuki-Kasami.
-  *
-  * v0.0.1
-  * 28 nov 2017
-  * Andrés Huerta
-  * Felipe Vega
-  */
 
-  public class Proceso{
-       
+
+public class Proceso{
+/** Atributos del proceso principal **/
+    public int id;
+    public int cantidadProcesos;
+    public int delayTime;
+    public Boolean bearer;
+    public Boolean haveToken;
+    public int estado;
+    public InterfaceRMI inter;
+
+    private MulticastSocket socketM;
+    private InetAddress addressM;
+    private int puertoM;
+    private byte[] buf;
+
+
+    public Proceso(int id, int cantidadProcesos, int delayTime, Boolean bearer){
+        this.id = id;
+        this.cantidadProcesos = cantidadProcesos;
+        this.delayTime = delayTime;
+        this.bearer = bearer;
+        this.estado = 0;
+
+        inter = (InterfaceRMI) Naming.lookup("//localhost:12345/SK");
+        if(this.bearer){
+            this.haveToken = true;
+        }
+        else{
+            this.token = null;
+            this.haveToken = false;
+        }
   }
+}
