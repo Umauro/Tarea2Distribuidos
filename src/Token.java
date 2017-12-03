@@ -43,11 +43,7 @@ public class Token implements Serializable{
         colaRequest.add(id);
     }
 
-    public void setProxId(int id){
-        proxId = id;
-    }
-
     public int getProxId(){
-        return proxId;
+        return colaRequest.remove();
     }
 }

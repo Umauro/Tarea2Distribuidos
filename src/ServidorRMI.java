@@ -87,71 +87,50 @@
 
      }
 
-     public Token waitToken(int id, int n) throws RemoteException{
-         final Token token = new Token(n);
-         Thread t = new Thread(new Runnable(){
-             public void run(){
-                 while(true){
-                     try{
-                         DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
-                         System.out.println("Esperando el Token");
-                         socketM2.receive(packet2);
-                         try{
-                             System.out.println("Llegó el token");
-                             ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
-                             ObjectInputStream is = new ObjectInputStream(serializado);
-                             Token tokenAux = (Token)is.readObject();
-                             is.close();
-                             if(id == tokenAux.getProxId()){
-                                 token.listaProcesos = tokenAux.listaProcesos;
-                                 token.colaRequest = tokenAux.colaRequest;
-                                 token.proxId = tokenAux.proxId;
-                                 break;
-                             }
-
-                         }
-                         catch (IOException e){
-                             e.printStackTrace();
-                         }
-                         catch (ClassNotFoundException e){
-                             e.printStackTrace();
-                         }
-                     }
-                     catch (SocketTimeoutException e){
-
-                     }
-                     catch(Exception e){
-                         System.err.println("ME CAÍ en WaitToken");
-                         e.printStackTrace();
-                         System.exit(1);
-                     }
-                 }
-             }
-         });
-         t.start();
+     public Token waitToken(int id) throws RemoteException{
+         Token tokenAux = null;
          try{
-            t.join();
+             DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
+             DatagramSocket socketU = new DatagramSocket(id+4000);
+             System.out.println("Esperando el Token");
+             socketM2.receive(packet2);
+             try{
+                 System.out.println("Llegó el token");
+                 ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
+                 ObjectInputStream is = new ObjectInputStream(serializado);
+                 tokenAux = (Token)is.readObject();
+                 is.close();
+             }
+             catch (IOException e){
+                 e.printStackTrace();
+             }
+             catch (ClassNotFoundException e){
+                 e.printStackTrace();
+             }
          }
-         catch (InterruptedException e){
+         catch(Exception e){
+             System.err.println("ME CAÍ en WaitToken");
              e.printStackTrace();
+             System.exit(1);
          }
-         return token;
+         return tokenAux;
      }
 
-     public int takeToken(Token token) throws RemoteException{
+     public void takeToken(Token token) throws RemoteException{
          try{
              ByteArrayOutputStream serial = new ByteArrayOutputStream();
              ObjectOutputStream os = new ObjectOutputStream(serial);
              os.writeObject(token);
              os.close();
              byte[] buf = serial.toByteArray();
-             DatagramPacket packet = new DatagramPacket(buf, buf.length, addressM, puertoM2);
+             InetAddress address = InetAddress.getByName("127.0.0.1");
+             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, token.getProxId() + 4000);
              try{
                  System.out.println("Vamos a Mandar la weá");
                  socketM2.send(packet);
              } catch (IOException e){e.printStackTrace();}
          } catch (IOException e){e.printStackTrace();}
-         return 0;
+         System.out.println("Lo envié");
      }
 
      public void kill() throws RemoteException{

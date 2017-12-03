@@ -126,7 +126,9 @@ public class Proceso{
                     if(haveToken == false){
 
                         inter.request(id,1);
-                        inter.waitToken(id, cantidadProcesos);
+                        System.out.println("Voy a pedir el token");
+                        token = inter.waitToken(id);
+                        System.out.println("Me llegó el token");
                         haveToken = true;
                     }
 
@@ -134,24 +136,14 @@ public class Proceso{
                     //Ruta Crítica va acá
                     System.out.println("Seccion Critica");
                     Thread.sleep(2000);
-                    if(token.colaRequest.size()>0){
-                        token.setProxId(token.colaRequest.element());
-                    }
 
-                    Boolean tamos = true;
-                    if(inter.takeToken(token) == 1){
-                        for(int i=0; i< token.listaProcesos.size(); i++){
-                            if(token.listaProcesos.get(i) == 0){
-                                tamos = false;
-                            }
-                        }
-                        if(tamos){
-                            inter.kill();
-                        }
+                    if(token.colaRequest.size()>0){
+                        System.out.println("Voy a enviar el Token");
+                        inter.takeToken(token);
+                        haveToken = false;
+                        token = null;
+                        System.exit(0);
                     }
-                    haveToken = false;
-                    token = null;
-                    System.exit(0);
                 }
                 catch(RemoteException e){
                     System.err.println("Error: " + e.toString());
