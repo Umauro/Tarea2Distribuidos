@@ -88,11 +88,9 @@ public class Proceso{
                         String[] parser = response.split(";");
                         if(haveToken){
                             System.out.println("Me llegó el request");
+                            System.out.println("Voy a encolar el proceso con id " + parser[0]);
                             token.encolarProceso(Integer.parseInt(parser[0]));
                             /** Acá hay que manejar que se hace en el request **/
-                        }
-                        else{
-                            System.out.println("No hay mano con el token");
                         }
                     }
                     catch (SocketTimeoutException e){
@@ -126,24 +124,27 @@ public class Proceso{
                     if(haveToken == false){
 
                         inter.request(id,1);
-                        System.out.println("Voy a pedir el token");
+                        System.out.println("Voy a pedir el token con id" + id);
                         token = inter.waitToken(id);
                         System.out.println("Me llegó el token");
                         haveToken = true;
                     }
+                    if(haveToken){
+                        token.listaProcesos.set(id-1,1);
+                        //Ruta Crítica va acá
+                        System.out.println("Seccion Critica");
+                        Thread.sleep(2000);
 
-                    token.listaProcesos.set(id-1,1);
-                    //Ruta Crítica va acá
-                    System.out.println("Seccion Critica");
-                    Thread.sleep(2000);
-
-                    if(token.colaRequest.size()>0){
-                        System.out.println("Voy a enviar el Token");
-                        inter.takeToken(token);
-                        haveToken = false;
-                        token = null;
-                        System.exit(0);
+                        System.out.println("Tamaño de la cola: " +token.colaRequest.size() + " Del proceso " + id);
+                        if(!token.colaRequest.isEmpty()){
+                            System.out.println("Voy a enviar el Token");
+                            inter.takeToken(token);
+                            haveToken = false;
+                            token = null;
+                            System.exit(0);
+                        }
                     }
+
                 }
                 catch(RemoteException e){
                     System.err.println("Error: " + e.toString());

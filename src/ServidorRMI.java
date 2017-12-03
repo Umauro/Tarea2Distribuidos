@@ -59,7 +59,7 @@
              System.exit(1);
          }
          buf = new byte[256];
-         buf2 = new byte[256];
+         buf2 = new byte[512];
      }
 
      public void request(int id, int seq) throws RemoteException{
@@ -91,9 +91,10 @@
          Token tokenAux = null;
          try{
              DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
+             System.out.println("Voy a esperar el token para el proceso " + id);
              DatagramSocket socketU = new DatagramSocket(id+4000);
              System.out.println("Esperando el Token");
-             socketM2.receive(packet2);
+             socketU.receive(packet2);
              try{
                  System.out.println("Llegó el token");
                  ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
@@ -118,15 +119,17 @@
 
      public void takeToken(Token token) throws RemoteException{
          try{
+             int prox = token.getProxId();
              ByteArrayOutputStream serial = new ByteArrayOutputStream();
              ObjectOutputStream os = new ObjectOutputStream(serial);
              os.writeObject(token);
              os.close();
              byte[] buf = serial.toByteArray();
              InetAddress address = InetAddress.getByName("127.0.0.1");
-             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, token.getProxId() + 4000);
+             System.out.println("Is empty? " + token.colaRequest.isEmpty());
+             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, prox + 4000);
              try{
-                 System.out.println("Vamos a Mandar la weá");
+                 System.out.println("Vamos a Mandar la weá al proceso "+prox);
                  socketM2.send(packet);
              } catch (IOException e){e.printStackTrace();}
          } catch (IOException e){e.printStackTrace();}

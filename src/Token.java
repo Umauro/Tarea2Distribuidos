@@ -44,6 +44,6 @@ public class Token implements Serializable{
     }
 
     public int getProxId(){
-        return colaRequest.remove();
+        return colaRequest.poll();
     }
 }
