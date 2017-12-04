@@ -20,7 +20,7 @@ make
 
 ## Instrucciones de Ejecución
 
-#### Importante: El rmi solo correrá en el puerto 12345 :(
+#### Importante: El rmi solo correrá en el puerto 12345 :(. Crear carpeta "logs" si no está en la raiz.
 
 - Iniciar el servicio RMI
 ~~~
