@@ -37,10 +37,14 @@ public class Proceso{
     public Token token;
     public Boolean haveToken;
     public String estado;
+    public int RN[];
+
+    /*Para Escribir por el Log*/
     public Logger logger;
     public FileHandler fh;
     public SimpleFormatter formatter;
 
+    /*Para comunicación*/
     private MulticastSocket socketM;
     private InetAddress addressM;
     private int puertoM;
@@ -57,8 +61,10 @@ public class Proceso{
             this.bearer = bearer;
             this.estado = "verde";
             logger = Logger.getLogger("MyLog");
-
-
+            RN = new int[cantidadProcesos];
+            for(int i=0; i< cantidadProcesos;i++){
+                RN[i] = 0;
+            }
             if(this.bearer){
                 this.token = new Token(cantidadProcesos);
                 this.haveToken = true;
@@ -115,7 +121,11 @@ public class Proceso{
                             if(haveToken){
                                 System.out.println("Me llegó el request");
                                 System.out.println("Voy a encolar el proceso con id " + parser[0]);
-                                token.encolarProceso(Integer.parseInt(parser[0]));
+                                if(Integer.parseInt(parser[1])>RN[Integer.parseInt(parser[0])-1]){
+                                    token.encolarProceso(Integer.parseInt(parser[0]));
+                                    RN[Integer.parseInt(parser[0])-1] = Integer.parseInt(parser[1]);
+                                }
+
                                 /** Acá hay que manejar que se hace en el request **/
                             }
                         }
@@ -151,6 +161,7 @@ public class Proceso{
                     Thread.sleep(delayTime);
                     if(haveToken == false){
                         estado = "amarillo";
+                        RN[id-1] = 1;
                         inter.request(id,1);
                         System.out.println("Voy a pedir el token con id" + id);
                         token = inter.waitToken(id);
