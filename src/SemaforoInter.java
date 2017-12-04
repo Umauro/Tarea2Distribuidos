@@ -7,7 +7,6 @@
  *
  * 28/11/2017
  *
- * INSERTAR LO DEL COPYWEA ACÁ
  */
 
  import java.rmi.Remote;
