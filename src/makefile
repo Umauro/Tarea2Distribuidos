@@ -1,35 +1,25 @@
-JFLAGS = -g
-#-Xlint
-JC = javac
-JVM = java
-PUERTO = 12345
-POLITICA = -Djava.security.policy
-ARCHIVO = permisos
-DIRECCION = localhost
+id=1
+n=1
+initialDelay=0
+bearer=true
+puerto=12345
 
-.SUFFIXES: .java .class
-.java.class:
-	$(JC) $(JFLAGS) $*.java
-CLASSES = \
-	SemaforoInter.java \
-	Token.java \
-	Proceso.java \
-	MainProceso.java \
-	ServidorRMI.java \
+JAVAC=javac
+sources = $(wildcard *.java)
+classes = $(sources:.java=.class)
 
-MAIN = ServidorRMI
+all: clases
 
-#default: classes
-#	$(JVM) $(MAIN)
+clases: $(classes)
 
-classes: $(CLASSES:.java=.class)
+proceso:
+	java -Djava.security.policy=permisos MainProceso $(id) $(n) $(initialDelay) $(bearer)
 
-run: classes
-ifeq ($(MAIN),Proceso)
-	$(JVM) $(POLITICA)=$(ARCHIVO) $(MAIN) $(DIRECCION) $(PUERTO)
-else
-	$(JVM) $(POLITICA)=$(ARCHIVO) $(MAIN) $(PUERTO)
-endif
+run:
+	java -Djava.security.policy=permisos ServidorRMI $(puerto)
 
-clean:
-	$(RM) *.class
+clean :
+	rm -f *.class
+
+%.class : %.java
+	$(JAVAC) $<
