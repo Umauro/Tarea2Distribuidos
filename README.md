@@ -8,7 +8,6 @@ Tarea 2 para el ramo Sistemas Distribuidos
 
 ## Supuestos
 
-- **El id de los procesos parte desde 1**
 - **El proceso que parte con el token se inicializa primero**
 
 ## Instrucciones de Compilación

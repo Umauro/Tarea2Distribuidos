@@ -119,9 +119,9 @@ public class Proceso{
                         else{
                             logger.info("idProceso: "+ id + " Estado: "+ estado + "Función: request de proceso "+ parser[0]);
                             if(haveToken){
-                                if(Integer.parseInt(parser[1])>RN[Integer.parseInt(parser[0])-1]){
+                                if(Integer.parseInt(parser[1])>RN[Integer.parseInt(parser[0])]){
                                     token.encolarProceso(Integer.parseInt(parser[0]));
-                                    RN[Integer.parseInt(parser[0])-1] = Integer.parseInt(parser[1]);
+                                    RN[Integer.parseInt(parser[0])] = Integer.parseInt(parser[1]);
                                 }
 
                                 /** Acá hay que manejar que se hace en el request **/
@@ -159,13 +159,13 @@ public class Proceso{
                     Thread.sleep(delayTime);
                     if(haveToken == false){
                         estado = "amarillo";
-                        RN[id-1] = 1;
+                        RN[id] = 1;
                         inter.request(id,1);
                         token = inter.waitToken(id);
                         haveToken = true;
                     }
                     if(haveToken){
-                        token.listaProcesos.set(id-1,1);
+                        token.listaProcesos.set(id,1);
                         //Ruta Crítica va acá
                         estado = "rojo";
                         logger.info("idProceso: "+ id + " Estado: "+ estado + " Sección Crítica");
