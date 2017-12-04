@@ -52,7 +52,7 @@ public class Proceso{
 
 
 
-
+    //Constructor de la clase proceso
     public Proceso(int id, int cantidadProcesos, int delayTime, Boolean bearer){
             this.id = id;
             this.cantidadProcesos = cantidadProcesos;
@@ -64,6 +64,7 @@ public class Proceso{
             for(int i=0; i< cantidadProcesos;i++){
                 RN[i] = 0;
             }
+            //Inicializar token si es el primer proceso con token
             if(this.bearer){
                 this.token = new Token(cantidadProcesos);
                 this.haveToken = true;
@@ -76,6 +77,7 @@ public class Proceso{
             }
     }
 
+    //Método para escuchar request y peticiones de escritura en el log.
     public void multicastListener(){
         Thread t = new Thread(new Runnable(){
             public void run(){
@@ -143,6 +145,7 @@ public class Proceso{
         t.start();
     }
 
+    //Ciclo de vida del proceso
     public void funcionalidades(){
         Thread t = new Thread(new Runnable(){
             public void run(){

@@ -60,6 +60,8 @@
          buf = new byte[256];
          buf2 = new byte[512];
      }
+
+     //Método para escribir en el log
      public void writelog(String func){
          Thread t = new Thread(new Runnable(){
              public void run(){
@@ -83,6 +85,7 @@
          t.start();
      }
 
+     //Método request para solicitar el token
      public void request(int id, int seq) throws RemoteException{
          Thread t = new Thread(new Runnable(){
              public void run(){
@@ -108,6 +111,8 @@
 
      }
 
+     //Método que le indica a un proceso remoto que debe esperar por el token
+     //para entrar en su sección critica
      public Token waitToken(int id) throws RemoteException{
          Token tokenAux = null;
          writelog("waitToken Pedido por " + id);
@@ -139,8 +144,8 @@
          return tokenAux;
      }
 
+     //Metodo para tomar posesión del token
      public void takeToken(Token token) throws RemoteException{
-
          try{
              int prox = token.getProxId();
              writelog("takeToken para el proceso "+ prox);
@@ -150,7 +155,6 @@
              os.close();
              byte[] buf = serial.toByteArray();
              InetAddress address = InetAddress.getByName("127.0.0.1");
-             System.out.println("Is empty? " + token.colaRequest.isEmpty());
              DatagramPacket packet = new DatagramPacket(buf, buf.length, address, prox + 4000);
              try{
                  System.out.println("Vamos a Mandar el token al proceso "+prox);
@@ -160,6 +164,7 @@
          System.out.println("Lo envié ;)");
      }
 
+     //Método para matar un proceso remoto.
      public void kill() throws RemoteException{
          System.out.println(" >:( DIEDIEDIE D:<");
          try{
@@ -174,6 +179,7 @@
          }
      }
 
+     //Inicialización y publicación del servicio RMI
      public static void main(String[] args){
         if(System.getSecurityManager() == null){
             System.setSecurityManager(new RMISecurityManager());
