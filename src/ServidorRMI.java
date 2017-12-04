@@ -61,6 +61,28 @@
          buf = new byte[256];
          buf2 = new byte[512];
      }
+     public void writelog(String func){
+         Thread t = new Thread(new Runnable(){
+             public void run(){
+                 try{
+                     buf = ("log;"+func).getBytes();
+                     DatagramPacket packet = new DatagramPacket(buf, buf.length,addressM,puertoM);
+                     try{
+                         socketM.send(packet);
+                     }
+                     catch (IOException e){
+                         e.printStackTrace();
+                     }
+                 }
+                 catch(Exception e){
+                     System.err.println("ME CAÍ");
+                     e.printStackTrace();
+                     System.exit(1);
+                 }
+             }
+         });
+         t.start();
+     }
 
      public void request(int id, int seq) throws RemoteException{
          Thread t = new Thread(new Runnable(){
@@ -89,6 +111,7 @@
 
      public Token waitToken(int id) throws RemoteException{
          Token tokenAux = null;
+         writelog("waitToken Pedido por " + id);
          try{
              DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
              System.out.println("Voy a esperar el token para el proceso " + id);
@@ -118,8 +141,10 @@
      }
 
      public void takeToken(Token token) throws RemoteException{
+
          try{
              int prox = token.getProxId();
+             writelog("takeToken para el proceso "+ prox);
              ByteArrayOutputStream serial = new ByteArrayOutputStream();
              ObjectOutputStream os = new ObjectOutputStream(serial);
              os.writeObject(token);

@@ -15,6 +15,10 @@ import java.net.*;
 import java.util.*;
 import java.rmi.*;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.SimpleFormatter;
  /*
   * Procesos que formarán parte del algoritmo Suzuki-Kasami.
   *
@@ -33,11 +37,17 @@ public class Proceso{
     public Token token;
     public Boolean haveToken;
     public String estado;
+    public Logger logger;
+    public FileHandler fh;
+    public SimpleFormatter formatter;
 
     private MulticastSocket socketM;
     private InetAddress addressM;
     private int puertoM;
     private byte[] buf;
+
+
+
 
 
     public Proceso(int id, int cantidadProcesos, int delayTime, Boolean bearer){
@@ -46,6 +56,9 @@ public class Proceso{
             this.delayTime = delayTime;
             this.bearer = bearer;
             this.estado = "verde";
+            logger = Logger.getLogger("MyLog");
+
+
             if(this.bearer){
                 this.token = new Token(cantidadProcesos);
                 this.haveToken = true;
@@ -62,12 +75,18 @@ public class Proceso{
         Thread t = new Thread(new Runnable(){
             public void run(){
                 buf = new byte[256];
+
                 /** Inicialización del Socket Multicast **/
                 try{
                     addressM = InetAddress.getByName("230.0.0.1");
                     puertoM = 4444;
                     socketM = new MulticastSocket(puertoM);
                     socketM.joinGroup(addressM);
+                    fh = new FileHandler("../logs/LogProceso"+id);
+                    logger.addHandler(fh);
+                    formatter = new SimpleFormatter();
+                    fh.setFormatter(formatter);
+
                 }
                 catch(UnknownHostException e){
                     System.err.println("Error al asignar ip Multicast");
@@ -88,12 +107,19 @@ public class Proceso{
                         String response = new String(packet.getData(),
                         packet.getOffset(), packet.getLength());
                         String[] parser = response.split(";");
-                        if(haveToken){
-                            System.out.println("Me llegó el request");
-                            System.out.println("Voy a encolar el proceso con id " + parser[0]);
-                            token.encolarProceso(Integer.parseInt(parser[0]));
-                            /** Acá hay que manejar que se hace en el request **/
+                        if(parser[0].equals("log")){
+                            logger.info("idProceso: "+ id + " Estado: "+ estado + "Función: "+ parser[1]);
                         }
+                        else{
+                            logger.info("idProceso: "+ id + " Estado: "+ estado + "Función: request de proceso "+ parser[0]);
+                            if(haveToken){
+                                System.out.println("Me llegó el request");
+                                System.out.println("Voy a encolar el proceso con id " + parser[0]);
+                                token.encolarProceso(Integer.parseInt(parser[0]));
+                                /** Acá hay que manejar que se hace en el request **/
+                            }
+                        }
+
                     }
                     catch (SocketTimeoutException e){
                         System.err.println("Excepcion: ");
@@ -124,10 +150,9 @@ public class Proceso{
                     /*Pedir el token una vez pasado el Delay Time*/
                     Thread.sleep(delayTime);
                     if(haveToken == false){
-
+                        estado = "amarillo";
                         inter.request(id,1);
                         System.out.println("Voy a pedir el token con id" + id);
-                        estado = "amarillo";
                         token = inter.waitToken(id);
                         System.out.println("Me llegó el token");
                         haveToken = true;
@@ -137,6 +162,7 @@ public class Proceso{
                         //Ruta Crítica va acá
                         System.out.println("Seccion Critica");
                         estado = "rojo";
+                        logger.info("idProceso: "+ id + " Estado: "+ estado + " Sección Crítica");
                         Thread.sleep(2000);
                         //Termino Sección crítica
                         estado = "verde";
