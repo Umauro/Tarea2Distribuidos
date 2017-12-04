@@ -119,8 +119,6 @@ public class Proceso{
                         else{
                             logger.info("idProceso: "+ id + " Estado: "+ estado + "Función: request de proceso "+ parser[0]);
                             if(haveToken){
-                                System.out.println("Me llegó el request");
-                                System.out.println("Voy a encolar el proceso con id " + parser[0]);
                                 if(Integer.parseInt(parser[1])>RN[Integer.parseInt(parser[0])-1]){
                                     token.encolarProceso(Integer.parseInt(parser[0]));
                                     RN[Integer.parseInt(parser[0])-1] = Integer.parseInt(parser[1]);
@@ -163,23 +161,18 @@ public class Proceso{
                         estado = "amarillo";
                         RN[id-1] = 1;
                         inter.request(id,1);
-                        System.out.println("Voy a pedir el token con id" + id);
                         token = inter.waitToken(id);
-                        System.out.println("Me llegó el token");
                         haveToken = true;
                     }
                     if(haveToken){
                         token.listaProcesos.set(id-1,1);
                         //Ruta Crítica va acá
-                        System.out.println("Seccion Critica");
                         estado = "rojo";
                         logger.info("idProceso: "+ id + " Estado: "+ estado + " Sección Crítica");
                         Thread.sleep(2000);
                         //Termino Sección crítica
                         estado = "verde";
                         if(!token.colaRequest.isEmpty()){
-
-                            System.out.println("Voy a enviar el Token");
                             inter.takeToken(token);
                             haveToken = false;
                             token = null;
@@ -201,7 +194,6 @@ public class Proceso{
                                 System.exit(0);
                             }
                             else{
-                                System.out.println("Todos terminaron, así que chaolovimoh");
                                 inter.kill();
                                 System.exit(0);
                             }

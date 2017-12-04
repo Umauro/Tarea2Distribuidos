@@ -99,7 +99,7 @@
                      }
                  }
                  catch(Exception e){
-                     System.err.println("ME CAÍ");
+                     System.err.println("ME CAÍ :c");
                      e.printStackTrace();
                      System.exit(1);
                  }
@@ -116,10 +116,10 @@
              DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length);
              System.out.println("Voy a esperar el token para el proceso " + id);
              DatagramSocket socketU = new DatagramSocket(id+4000);
-             System.out.println("Esperando el Token");
+             System.out.println("Esperando el Token :c");
              socketU.receive(packet2);
              try{
-                 System.out.println("Llegó el token");
+                 System.out.println("Llegó el token :D");
                  ByteArrayInputStream serializado = new ByteArrayInputStream(buf2);
                  ObjectInputStream is = new ObjectInputStream(serializado);
                  tokenAux = (Token)is.readObject();
@@ -154,15 +154,15 @@
              System.out.println("Is empty? " + token.colaRequest.isEmpty());
              DatagramPacket packet = new DatagramPacket(buf, buf.length, address, prox + 4000);
              try{
-                 System.out.println("Vamos a Mandar la weá al proceso "+prox);
+                 System.out.println("Vamos a Mandar el token al proceso "+prox);
                  socketM2.send(packet);
              } catch (IOException e){e.printStackTrace();}
          } catch (IOException e){e.printStackTrace();}
-         System.out.println("Lo envié");
+         System.out.println("Lo envié ;)");
      }
 
      public void kill() throws RemoteException{
-         System.out.println("DIEDIEDIE");
+         System.out.println(" >:( DIEDIEDIE D:<");
          try{
              Naming.unbind("rmi://localhost:12345/SK");
              UnicastRemoteObject.unexportObject(this, true);
